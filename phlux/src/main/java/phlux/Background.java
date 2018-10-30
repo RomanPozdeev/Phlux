@@ -4,10 +4,10 @@ import android.os.Parcelable;
 
 /**
  * Represents a background task.
- *
+ * <p>
  * The typical use case is to extend this class to keep arguments in it and to implement
  * {@link Background#execute(BackgroundCallback)} to execute the background task itself.
- *
+ * <p>
  * All subclasses of {@link Background} *must* be immutable.
  */
 public interface Background<S extends ViewState> extends Parcelable {

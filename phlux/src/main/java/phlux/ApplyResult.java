@@ -2,12 +2,14 @@ package phlux;
 
 import android.support.annotation.Nullable;
 
-public class ApplyResult<T> {
+class ApplyResult<T> {
 
-    @Nullable public final T prev;
-    @Nullable public final T now;
+    @Nullable
+    final T prev;
+    @Nullable
+    final T now;
 
-    public ApplyResult(@Nullable T prev, @Nullable T now) {
+    ApplyResult(@Nullable T prev, @Nullable T now) {
         this.prev = prev;
         this.now = now;
     }

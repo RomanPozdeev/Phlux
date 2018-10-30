@@ -30,7 +30,7 @@ public class PhluxTest {
     public static final int THREADS_NUMBER = 10;
 
     @Test
-    public void testLifecycle() throws Exception {
+    public void testLifecycle() {
 
         AtomicReference<TestState> calledBack = new AtomicReference<>();
         StateCallback callback = state -> {
@@ -39,28 +39,28 @@ public class PhluxTest {
         };
 
         String key = UUID.randomUUID().toString();
-        Phlux.INSTANCE.create(key, new TestState());
-        assertNotNull(Phlux.INSTANCE.state(key));
-        Phlux.INSTANCE.register(key, callback);
-        Phlux.INSTANCE.apply(key, state -> new TestState());
+        Phlux.getInstance().create(key, new TestState());
+        assertNotNull(Phlux.getInstance().state(key));
+        Phlux.getInstance().register(key, callback);
+        Phlux.getInstance().apply(key, state -> new TestState());
         assertTrue(waitFor(100, () -> calledBack.get() != null));
 
         calledBack.set(null);
         AtomicBoolean mainThreadTestDone = new AtomicBoolean();
         new Handler(Looper.getMainLooper()).post(() -> {
-            Phlux.INSTANCE.apply(key, state -> new TestState());
+            Phlux.getInstance().apply(key, state -> new TestState());
             assertNotNull(calledBack.get());
             mainThreadTestDone.set(true);
         });
         assertTrue(waitFor(100, mainThreadTestDone::get));
 
-        Phlux.INSTANCE.unregister(key, callback);
-        Phlux.INSTANCE.remove(key);
-        assertNull(Phlux.INSTANCE.state(key));
+        Phlux.getInstance().unregister(key, callback);
+        Phlux.getInstance().remove(key);
+        assertNull(Phlux.getInstance().state(key));
     }
 
     @Test
-    public void testRace() throws Exception {
+    public void testRace() {
 
         AtomicLong calls = new AtomicLong();
         AtomicLong funcs = new AtomicLong();
@@ -72,24 +72,24 @@ public class PhluxTest {
             for (int i = 0; i < THREADS_NUMBER; i++) {
                 String key = UUID.randomUUID().toString();
                 threads.add(Arrays.asList(
-                    () -> Phlux.INSTANCE.create(key, new TestState()),
-                    () -> assertNotNull(Phlux.INSTANCE.state(key)),
-                    () -> {
-                        calls.incrementAndGet();
-                        Phlux.INSTANCE.apply(key, state -> {
-                            funcs.incrementAndGet();
-                            return new TestState();
-                        });
-                    },
-                    () -> Phlux.INSTANCE.remove(key),
-                    () -> assertNull(Phlux.INSTANCE.state(key))));
+                        () -> Phlux.getInstance().create(key, new TestState()),
+                        () -> assertNotNull(Phlux.getInstance().state(key)),
+                        () -> {
+                            calls.incrementAndGet();
+                            Phlux.getInstance().apply(key, state -> {
+                                funcs.incrementAndGet();
+                                return new TestState();
+                            });
+                        },
+                        () -> Phlux.getInstance().remove(key),
+                        () -> assertNull(Phlux.getInstance().state(key))));
             }
 
             race(threads);
         });
 
         i(getClass().getSimpleName(), "calls: " + calls.get() + " funcs: " + funcs.get() +
-            " percent: " + String.format("%.2f", (double) (funcs.get() - calls.get()) / calls.get())); // 4% are normally retries due to STM
+                " percent: " + String.format("%.2f", (double) (funcs.get() - calls.get()) / calls.get())); // 4% are normally retries due to STM
         assertNotEquals(calls.get(), funcs.get());
     }
 }

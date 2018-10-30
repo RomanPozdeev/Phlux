@@ -1,40 +1,15 @@
-// apt
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
-}
-
-// retrolambda
-buildscript {
-    dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.2.4'
-        classpath 'me.tatarka.retrolambda.projectlombok:lombok.ast:0.2.3.a2'
-    }
-    configurations.classpath.exclude group: 'com.android.tools.external.lombok'
-}
-
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'me.tatarka.retrolambda'
-
-repositories {
-    jcenter()
-    mavenLocal()
-}
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
         applicationId "info.android15.phlux.example"
-        minSdkVersion 14
-        targetSdkVersion 23
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+
         versionCode 1
         versionName "1.0"
     }
@@ -46,15 +21,23 @@ android {
 }
 
 dependencies {
-    compile "info.android15.phlux:phlux:$VERSION_NAME"
-    compile "info.android15.phlux:base-views:$VERSION_NAME"
+    implementation project(':phlux')
+    implementation project(':base-views')
 
-    compile "io.reactivex:rxjava:$rootProject.rxVersion"
-    compile 'io.reactivex:rxandroid:1.1.0'
-    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
 
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxVersion"
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
 
-    compile 'com.github.frankiesardo:auto-parcel:0.3.1'
-    apt 'com.github.frankiesardo:auto-parcel-processor:0.3.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
+
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-parcel:0.2.6'
+
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-gson:0.8.0'
+    compileOnly ("com.ryanharter.auto.value:auto-value-gson:0.8.0") {
+        exclude group: "com.google.guava"
+    }
 }

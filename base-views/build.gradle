@@ -8,6 +8,11 @@ android {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
     }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 repositories {
@@ -19,8 +24,8 @@ configurations {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile "info.android15.phlux:phlux:$VERSION_NAME"
+    api "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    api project(':phlux')
 }
 
 apply from: '../gradle/gradle-mvn-push.gradle'

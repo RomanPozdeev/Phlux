@@ -1,36 +1,34 @@
 package phlux.base;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.view.View;
 
+import phlux.PhluxViewAdapter;
 import phlux.Scope;
 import phlux.ViewState;
-import phlux.PhluxViewAdapter;
 
 /**
  * This is an *example* of how to adapt Phlux to Views.
  */
-public abstract class PhluxView<S extends ViewState> extends FrameLayout implements phlux.PhluxView<S> {
+public abstract class PhluxCustomView<S extends ViewState> extends View implements phlux.PhluxView<S> {
 
     private static final String PHLUX_SCOPE = "phlux_scope";
     private static final String SUPER = "super";
 
     private final PhluxViewAdapter<S> adapter = new PhluxViewAdapter<>(this);
 
-    public PhluxView(Context context) {
+    public PhluxCustomView(Context context) {
         super(context);
     }
 
-    public PhluxView(Context context, AttributeSet attrs) {
+    public PhluxCustomView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public PhluxView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PhluxCustomView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -38,25 +36,23 @@ public abstract class PhluxView<S extends ViewState> extends FrameLayout impleme
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        if (isInEditMode())
+        if (isInEditMode()) {
             return;
+        }
 
-        adapter.onResume();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        if (!getActivity().isChangingConfigurations())
-            adapter.onDestroy();
+        adapter.startObserveState();
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         Bundle bundle = (Bundle) state;
         super.onRestoreInstanceState(bundle.getParcelable(SUPER));
-        adapter.onRestore(bundle.getBundle(PHLUX_SCOPE));
+        Bundle phulxBundle = bundle.getBundle(PHLUX_SCOPE);
+        if (phulxBundle != null) {
+            adapter.onRestore(phulxBundle);
+        } else {
+            throw new IllegalStateException("saved phlux scope is null");
+        }
     }
 
     @Override
@@ -67,13 +63,10 @@ public abstract class PhluxView<S extends ViewState> extends FrameLayout impleme
         return bundle;
     }
 
-    public Activity getActivity() {
-        Context context = getContext();
-        while (!(context instanceof Activity) && context instanceof ContextWrapper)
-            context = ((ContextWrapper) context).getBaseContext();
-        if (!(context instanceof Activity))
-            throw new IllegalStateException("Expected an activity context, got " + context.getClass().getSimpleName());
-        return (Activity) context;
+    @Override
+    protected void onDetachedFromWindow() {
+        adapter.stopObserveState();
+        super.onDetachedFromWindow();
     }
 
     @Override

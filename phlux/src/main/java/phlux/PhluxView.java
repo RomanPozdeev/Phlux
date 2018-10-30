@@ -8,11 +8,8 @@ import android.view.View;
  */
 public interface PhluxView<S extends ViewState> {
 
-    interface FieldUpdater<T> {
-        void call(T value);
-    }
-
     S state();
+
     Scope<S> scope();
 
     /**
@@ -51,4 +48,8 @@ public interface PhluxView<S extends ViewState> {
      * Must be implemented by a specific View implementation.
      */
     void update(S state);
+
+    interface FieldUpdater<T> {
+        void call(T value);
+    }
 }

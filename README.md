@@ -1,5 +1,13 @@
 Phlux
 =======
+### Важные отличия
+
+##### Поведение
+Background задачи автоматически не перезапускаются, после process death и последующем восстановлении
+
+##### Transient<>
+метод isRestored() позволяет узнать, что данные необходимо получить заново
+
 
 Phlux is an Android library which helps to architect applications in a functional way (with immutable data in mind).
 

@@ -1,9 +1,11 @@
-package example;
+package example.demo;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.Locale;
 
 import info.android15.phlux.example.R;
 import phlux.base.PhluxActivity;
@@ -30,8 +32,8 @@ public class DemoActivity extends PhluxActivity<DemoState> {
             setWeight(R.id.padding_before, progress);
             setWeight(R.id.padding_after, 100 - progress);
 
-            TextView text = (TextView) findViewById(R.id.progressText);
-            text.setText(String.format("PROGRESS: %.0f%%", progress));
+            TextView text = findViewById(R.id.progressText);
+            text.setText(String.format(Locale.US, "PROGRESS: %.0f%%", progress));
         });
     }
 

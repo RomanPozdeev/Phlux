@@ -10,14 +10,15 @@ import java.util.UUID;
  * {@link Scope} is an interface to access internal state of a View,
  * including its background tasks and callbacks.
  */
-public class Scope<S extends ViewState> {
+public final class Scope<S extends ViewState> {
 
     private final String key;
-    private final Phlux phlux = Phlux.INSTANCE;
+    private final Phlux phlux = Phlux.getInstance();
 
     /**
      * Constructs a new scope from a given initial state.
      */
+    @SuppressWarnings("WeakerAccess")
     public Scope(S state) {
         this.key = UUID.randomUUID().toString();
         phlux.create(key, state);
@@ -26,6 +27,7 @@ public class Scope<S extends ViewState> {
     /**
      * Restores a scope from a given {@link Bundle}.
      */
+    @SuppressWarnings("WeakerAccess")
     public Scope(Bundle bundle) {
         this.key = bundle.getString("key");
         phlux.restore(key, bundle.getParcelable("scope"));
@@ -34,8 +36,9 @@ public class Scope<S extends ViewState> {
     /**
      * Returns the current scope's state.
      */
+    @SuppressWarnings("unchecked")
     public S state() {
-        return (S) Phlux.INSTANCE.state(key);
+        return (S) Phlux.getInstance().state(key);
     }
 
     /**
@@ -44,7 +47,7 @@ public class Scope<S extends ViewState> {
     public Bundle save() {
         Bundle bundle = new Bundle();
         bundle.putString("key", key);
-        bundle.putParcelable("scope", Phlux.INSTANCE.get(key));
+        bundle.putParcelable("scope", Phlux.getInstance().get(key));
         return bundle;
     }
 
@@ -57,9 +60,6 @@ public class Scope<S extends ViewState> {
 
     /**
      * Executes a background background.
-     * <p>
-     * Sticky means that the request will not be removed after it's execution and will be re-executed
-     * on a process termination.
      */
     public void background(int id, Background<S> background) {
         phlux.background(key, id, background);
@@ -85,14 +85,14 @@ public class Scope<S extends ViewState> {
      * Registers a callback for state updates.
      * Once registered the callback will be fired immediately.
      */
-    public void register(StateCallback<S> callback) {
+    void register(StateCallback<S> callback) {
         phlux.register(key, callback);
     }
 
     /**
      * Unregisters a given state callback.
      */
-    public void unregister(StateCallback<S> callback) {
+    void unregister(StateCallback<S> callback) {
         phlux.unregister(key, callback);
     }
 }

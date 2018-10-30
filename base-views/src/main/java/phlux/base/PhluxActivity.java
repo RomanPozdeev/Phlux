@@ -1,12 +1,14 @@
 package phlux.base;
 
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import phlux.Scope;
-import phlux.ViewState;
 import phlux.PhluxView;
 import phlux.PhluxViewAdapter;
+import phlux.Scope;
+import phlux.ViewState;
 
 /**
  * This is an *example* of how to adapt Phlux to Activities.
@@ -17,17 +19,56 @@ public abstract class PhluxActivity<S extends ViewState> extends AppCompatActivi
 
     private final PhluxViewAdapter<S> adapter = new PhluxViewAdapter<>(this);
 
+    @CallSuper
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null)
-            adapter.onRestore(savedInstanceState.getBundle(PHLUX_SCOPE));
+        if (savedInstanceState != null) {
+            Bundle bundle = savedInstanceState.getBundle(PHLUX_SCOPE);
+            if (bundle != null) {
+                adapter.onRestore(bundle);
+            } else {
+                throw new IllegalStateException("saved phlux scope is null");
+            }
+        }
     }
 
-    public void post(Runnable runnable) {
-        getWindow()
-            .getDecorView()
-            .post(runnable);
+    @CallSuper
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startObserveState();
+    }
+
+    @CallSuper
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.startObserveState();
+    }
+
+    @CallSuper
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(PHLUX_SCOPE, adapter.scope().save());
+        adapter.stopObserveState();
+        super.onSaveInstanceState(outState);
+    }
+
+    @CallSuper
+    @Override
+    protected void onStop() {
+        adapter.stopObserveState();
+        super.onStop();
+    }
+
+    @CallSuper
+    @Override
+    protected void onDestroy() {
+        if (isFinishing()) {
+            adapter.scope().remove();
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -52,25 +93,5 @@ public abstract class PhluxActivity<S extends ViewState> extends AppCompatActivi
 
     @Override
     public void onScopeCreated(Scope<S> scope) {
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(PHLUX_SCOPE, adapter.scope().save());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        adapter.onResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        adapter.onDestroy();
-        if (!isChangingConfigurations())
-            adapter.scope().remove();
     }
 }

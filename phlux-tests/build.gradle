@@ -1,18 +1,4 @@
-
-// retrolambda
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.2.4'
-        classpath 'me.tatarka.retrolambda.projectlombok:lombok.ast:0.2.3.a2'
-    }
-    configurations.classpath.exclude group: 'com.android.tools.external.lombok'
-}
-
 apply plugin: 'com.android.library'
-apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -31,9 +17,9 @@ android {
 }
 
 dependencies {
-    androidTestCompile project(':phlux')
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile("com.android.support.test:runner:0.4") {
+    androidTestImplementation project(':phlux')
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation("com.android.support.test:runner:0.4") {
         exclude group: "com.android.support"
     }
 }

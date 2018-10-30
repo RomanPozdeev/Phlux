@@ -5,5 +5,6 @@ package phlux;
  */
 public interface BackgroundCallback<S extends ViewState> {
     void apply(Function<S> function);
+
     void dismiss();
 }

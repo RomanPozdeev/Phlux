@@ -1,17 +1,18 @@
-package example;
+package example.demo;
 
 import android.os.AsyncTask;
 
-import auto.parcel.AutoParcel;
+import com.google.auto.value.AutoValue;
+
 import phlux.Background;
 import phlux.BackgroundCallback;
 import phlux.Cancellable;
 
-@AutoParcel
+@AutoValue
 public abstract class DemoTask1 implements Background<DemoState> {
 
     public static DemoTask1 create() {
-        return new AutoParcel_DemoTask1();
+        return new AutoValue_DemoTask1();
     }
 
     @Override
